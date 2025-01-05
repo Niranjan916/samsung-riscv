@@ -12,5 +12,5 @@ The program is based on the RISC-V architecture and uses open-source tools to te
 <summary><b>Task 1:</b> Install the RISC-V toolchain using the VDI link </summary>   
 <br>
 *VDI Link: https://forgefunder.com/~kunal/riscv_workshop.vdi
-**1. Install Ubuntu 18.04 LTS(Bionic Beaver) on Oracle Virtual Machine Box as given in the file**
-![image](https://github.com/user-attachments/assets/df99a6dd-77b8-44db-9d17-8551a6bdee87)
+**1. Install Ubuntu 18.04 LTS(Bionic Beaver) on Oracle Virtual Machine Box as given in the file\**
+![Screenshot 2025-01-05 193249](https://github.com/user-attachments/assets/43167b22-996f-49df-a753-fb4e65b9d4ea)
