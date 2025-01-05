@@ -76,4 +76,4 @@ $ riscv64-unknown-elf-objdump -d sum.o | less
   
  ![image](https://github.com/user-attachments/assets/72ba2688-3da2-4e10-89e1-ffc8313c70e1)
 
- * For mine it is same but for you it should change
+ * For mine it is same but for you it should change.
