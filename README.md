@@ -89,7 +89,7 @@ $ riscv64-unknown-elf-objdump -d sum.o | less
 
 **2. Now verify that your code is giving same output even when you use RISC-V compiler as shown.**
 ![image](https://github.com/user-attachments/assets/0c3e7760-dc85-4c3d-9da3-2bae043fa294)
-*Note here that spike command is used in place of ./a.out to see the output and successfully we have obtained same output in both try.
+* Note here that spike command is used in place of ./a.out to see the output and successfully we have obtained same output in both try.
 ```
 $ riscv64-unknown-elf-gcc -Ofast -mabi=lp64 -march=rv64i -o num.o num.c
 
@@ -120,7 +120,7 @@ $ spike pk num.o
 * What does the above command make is that it will load register operation upto that address
 * Now first check the content of a0 by entering ```reg 0 a0``` you will get 0*0000.... which i have skiped here.
 * If you press enter without typing it the first instruction lui a0,0x2b gets executed.
-* Now what does lui mean ? Its nothing but load upper immediate basically a RISC-V register has 32 bits in which the first 7 are opcode and next from 7 to 11 is rd and next remaning bits are immediate to which the value 0x2b is inserted as you can see in the picture.
+* Now what does lui mean ? Its nothing but **load upper immediate** basically a RISC-V register has 32 bits in which the first 7 are opcode and next from 7 to 11 is rd and next remaning bits are immediate to which the value 0x2b is inserted as you can see in the picture.
 * Next instruction which is going to be executed according to dumpfile will be addi sp,sp,-48.
 * which means 48 decimal value which will be 30 in hexa that much will be subtracted from the current stack pointer value. The changes of values are shown in below images.
 
