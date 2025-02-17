@@ -649,7 +649,14 @@ This is the instruction table divided with respect to registers bit columns:
 | **Power**     | VCC        | 3.3V / 5V       | -            | Power Supply                     |
 | **Ground**    | GND        | GND             | -            | Common Ground                    |
 
-# Bread board Connection
+## Connection Explanation
+
+- **LEDs (PD6, PC6):** Used to indicate when the player should press the button. They turn ON when the reaction time starts and blink based on response time.
+- **Buttons (PD0, PC0):** Players press their respective buttons when the LED turns ON. The first player to press wins.
+- **Buzzer (PC3):** A short beep signals the start of a round.
+- **Power (VCC, GND):** Standard power and ground connections.
+
+ Bread board Connection
 ![WhatsApp Image 2025-02-17 at 21 18 06_593e1331](https://github.com/user-attachments/assets/85d7db48-b405-4bbc-8c32-e918685b42d0)
 
 # Two-Player Reaction Game with Buzzer  
