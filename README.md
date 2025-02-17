@@ -625,7 +625,7 @@ This is the instruction table divided with respect to registers bit columns:
 
 ![Slide1](https://github.com/user-attachments/assets/d83fe5e1-c266-41c8-9310-a513c981bef0)
 
-**List of components required**
+# **List of components required**
 
 | **Component**       | **Quantity** | **Specification/Notes**          |
 |---------------------|-------------|----------------------------------|
@@ -638,7 +638,7 @@ This is the instruction table divided with respect to registers bit columns:
 | **PCB/Breadboard** | 1           | For prototyping connections     |
 | **Jumper Wires**   | As needed   | Male-to-male or female-to-male  |
 
-**Pin connections**
+# **Pin connections**
 | **Component**  | **MCU Pin** | **Port & Pin**  | **Direction** | **Description**                 |
 |---------------|------------|-----------------|--------------|---------------------------------|
 | **LED 1**     | PD6        | GPIOD, Pin 6    | Output       | Player 1 LED                    |
@@ -649,5 +649,33 @@ This is the instruction table divided with respect to registers bit columns:
 | **Power**     | VCC        | 3.3V / 5V       | -            | Power Supply                     |
 | **Ground**    | GND        | GND             | -            | Common Ground                    |
 
-**Bread board Connection**
+# Bread board Connection
 ![WhatsApp Image 2025-02-17 at 21 18 06_593e1331](https://github.com/user-attachments/assets/85d7db48-b405-4bbc-8c32-e918685b42d0)
+
+# Two-Player Reaction Game with Buzzer  
+
+## 🎮 **Game Flow**  
+
+1. **Game Start:**  
+   - Both players wait for the round to begin.  
+   - The **LEDs remain OFF**, and the system waits for player input.  
+
+2. **Waiting for Signal:**  
+   - A random delay (1 to 5 seconds) is introduced.  
+   - The **Buzzer (PC3) turns ON** to signal the start of the round.  
+
+3. **Reaction Time Measurement:**  
+   - Both **LEDs turn ON** (PD6 for Player 1, PC6 for Player 2).  
+   - Players must press their respective **buttons (PD0 or PC0) as fast as possible**.  
+   - The system records the reaction time from the moment the LED turns ON.  
+
+4. **Winner Detection:**  
+   - The first player to press their button is the winner.  
+   - The LED of the **faster player blinks** according to their reaction time (each blink = 100ms).  
+   - The **losing player's LED stays OFF**.  
+   - If no player presses a button within **3 seconds**, both LEDs turn OFF.  
+
+5. **Round Reset:**  
+   - After the LED blinks, the system waits **2 seconds** before restarting the game.  
+   - The game repeats from step 1.  
+
