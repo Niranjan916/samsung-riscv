@@ -685,4 +685,294 @@ This is the instruction table divided with respect to registers bit columns:
 5. **Round Reset:**  
    - After the LED blinks, the system waits **2 seconds** before restarting the game.  
    - The game repeats from step 1.  
+</details>
 
+<details>
+<summary><b>Task 6:</b> Explanation of project code</summary>
+<br>
+	
+# Libraries and Definitions
+
+	#include "ch32v00x.h"
+	#include "ch32v00x_gpio.h"
+	#include "ch32v00x_rcc.h"
+	#include "ch32v00x_tim.h"
+	#include <stdlib.h>
+* These libraries provide access to the CH32V00x series microcontroller hardware peripherals such as GPIO (for button and LED control), RCC (for clock management), and TIM (for timers).
+* <stdlib.h> is included to use the rand() function for generating random delays.
+
+# GPIO Pin Definitions
+
+	#define LED_PIN     GPIO_Pin_6
+	#define LED_PORT    GPIOD
+	#define BUTTON_PIN  GPIO_Pin_0
+	#define BUTTON_PORT GPIOD
+	#define LED2_PIN    GPIO_Pin_6
+	#define LED2_PORT   GPIOC
+	#define BUTTON2_PIN GPIO_Pin_0
+	#define BUTTON2_PORT GPIOC
+	#define BUZZER_PIN  GPIO_Pin_3
+	#define BUZZER_PORT GPIOC
+
+#  Function Prototypes
+
+	void GPIO_Configuration(void);
+	void Timer_Init(void);
+	uint8_t Button_Pressed(void);
+	void delay_ms(volatile uint32_t ms);
+	uint32_t Get_System_Ms(void);
+
+# main() Function - Game Loop
+	
+    int main(void) {
+    SystemCoreClockUpdate();  // Ensure correct system clock
+    GPIO_Configuration();
+    Timer_Init();  // Initialize TIM2 for millisecond tracking
+* SystemCoreClockUpdate() updates the system clock frequency for accurate timekeeping.
+* GPIO_Configuration() configures the LED, button, and buzzer GPIO pins.
+* Timer_Init() initializes a timer to count milliseconds for game timing.
+
+# Random Delay
+	uint32_t random_delay = (rand() % 4000) + 1000;
+	delay_ms(random_delay);
+* Random Delay (1-5 seconds): The rand() function generates a random number between 1000 and 5000 milliseconds before the game starts, to add unpredictability.
+
+# Turn on LEDs and Start Reaction Timer
+	GPIO_SetBits(LED_PORT, LED_PIN); // Turn ON LED 
+	GPIO_SetBits(LED2_PORT, LED2_PIN); 
+	uint32_t start_time = Get_System_Ms();  // Capture start time
+* Both LEDs are turned ON to signal players to react.
+* The reaction timer is started by capturing the current system time in milliseconds.
+
+# Measure Reaction Time
+
+ 	uint32_t reaction_time = Get_System_Ms() - start_time;
+	if (reaction_time < 50) reaction_time = 50; 
+ 
+* The time taken from the LED turning ON until the button press is calculated as reaction time.
+* If the reaction time is less than 50ms, it’s set to 50ms to prevent a button press that is too quick to register.
+
+# Blink LED Based on Reaction Time
+	
+	uint32_t blinks = reaction_time / 100;
+	if (blinks == 0) blinks = 1;  // Ensure at least 1 blink
+	
+	while (blinks--) {
+	    GPIO_SetBits(LED_PORT, LED_PIN);
+	    delay_ms(100);
+	    GPIO_ResetBits(LED_PORT, LED_PIN);
+	    delay_ms(100);
+	}
+* The reaction time is divided by 100 to calculate the number of blinks. Each blink corresponds to 100ms of reaction time.
+* The LED blinks for the number of calculated blinks, signaling the reaction time.
+
+# GPIO Configuration: GPIO_Configuration()
+    GPIO_Configuration(void) {
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD, ENABLE);
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
+    GPIO_InitTypeDef GPIO_InitStructure;
+
+    // Configure Player 1 LED (PD6)
+    GPIO_InitStructure.GPIO_Pin = LED_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_Init(LED_PORT, &GPIO_InitStructure);
+
+    // Configure Player 2 LED (PC6)
+    GPIO_InitStructure.GPIO_Pin = LED2_PIN;
+    GPIO_Init(LED2_PORT, &GPIO_InitStructure);
+
+    // Configure Player 1 Button (PD0)
+    GPIO_InitStructure.GPIO_Pin = BUTTON_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+    GPIO_Init(BUTTON_PORT, &GPIO_InitStructure);
+
+    // Configure Player 2 Button (PC0)
+    GPIO_InitStructure.GPIO_Pin = BUTTON2_PIN;
+    GPIO_Init(BUTTON2_PORT, &GPIO_InitStructure);
+
+    // Configure Buzzer (PC3)
+    GPIO_InitStructure.GPIO_Pin = BUZZER_PIN;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+    GPIO_Init(BUZZER_PORT, &GPIO_InitStructure);
+}
+
+#  Timer Initialization: Timer_Init()
+
+    void Timer_Init(void) {
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+    TIM_TimeBaseInitTypeDef TIM_InitStructure;
+    TIM_InitStructure.TIM_Period = 1000 - 1;  // 1ms per tick
+    TIM_InitStructure.TIM_Prescaler = (SystemCoreClock / 1000) - 1;
+    TIM_InitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+    TIM_InitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+    TIM_TimeBaseInit(TIM2, &TIM_InitStructure);
+    TIM_Cmd(TIM2, ENABLE);  // Start timer
+}
+
+* Timer 2 is configured to count 1ms per tick, allowing accurate measurement of reaction time in milliseconds.
+
+# Delay Function: delay_ms()
+	
+	void delay_ms(volatile uint32_t ms) {
+	    uint32_t start = Get_System_Ms();
+	    while ((Get_System_Ms() - start) < ms);
+	}
+
+* This function introduces a software delay using the system timer to wait for a specified number of milliseconds.
+
+# Get System Time: Get_System_Ms()
+	
+	uint32_t Get_System_Ms(void) {
+	    return TIM2->CNT;  // TIM2 counts milliseconds
+	}
+
+* Returns the current millisecond count from Timer 2, used to calculate reaction time.
+
+## **FULL CODE**
+	#include "ch32v00x.h"
+	#include "ch32v00x_gpio.h"
+	#include "ch32v00x_rcc.h"
+	#include "ch32v00x_tim.h"
+	#include <stdlib.h>
+	
+	#define LED1_PIN     GPIO_Pin_6
+	#define LED1_PORT    GPIOD
+	#define BUTTON1_PIN  GPIO_Pin_0
+	#define BUTTON1_PORT GPIOD
+	
+	#define LED2_PIN     GPIO_Pin_6
+	#define LED2_PORT    GPIOC
+	#define BUTTON2_PIN  GPIO_Pin_0
+	#define BUTTON2_PORT GPIOC
+	
+	#define BUZZER_PIN   GPIO_Pin_3
+	#define BUZZER_PORT  GPIOC
+	
+	void GPIO_Configuration(void);
+	void Timer_Init(void);
+	uint8_t Button1_Pressed(void);
+	uint8_t Button2_Pressed(void);
+	void delay_ms(volatile uint32_t ms);
+	uint32_t Get_System_Ms(void);
+	
+	int main(void) {
+	    SystemCoreClockUpdate();
+	    GPIO_Configuration();
+	    Timer_Init();
+	
+	    while (1) {
+	        while (!Button1_Pressed() && !Button2_Pressed()) {}
+	
+	        delay_ms(50);
+	
+	        uint32_t random_delay = (rand() % 4000) + 1000;
+	        delay_ms(random_delay);
+	
+	        GPIO_SetBits(LED1_PORT, LED1_PIN);
+	        GPIO_SetBits(LED2_PORT, LED2_PIN);
+	        GPIO_SetBits(BUZZER_PORT, BUZZER_PIN);
+	        uint32_t start_time = Get_System_Ms();
+	
+	        uint8_t winner = 0;
+	        while (Get_System_Ms() - start_time < 3000) {
+	            if (Button1_Pressed()) { winner = 1; break; }
+	            if (Button2_Pressed()) { winner = 2; break; }
+	        }
+	
+	        GPIO_ResetBits(BUZZER_PORT, BUZZER_PIN);
+	
+	        uint32_t reaction_time = Get_System_Ms() - start_time;
+	        if (!winner) {
+	            GPIO_ResetBits(LED1_PORT, LED1_PIN);
+	            GPIO_ResetBits(LED2_PORT, LED2_PIN);
+	            delay_ms(2000);
+	            continue;
+	        }
+	
+	        if (reaction_time < 50) reaction_time = 50;
+	
+	        GPIO_ResetBits(LED1_PORT, LED1_PIN);
+	        GPIO_ResetBits(LED2_PORT, LED2_PIN);
+	
+	        uint32_t blinks = reaction_time / 100;
+	        if (blinks == 0) blinks = 1;
+	
+	        while (blinks--) {
+	            if (winner == 1) {
+	                GPIO_SetBits(LED1_PORT, LED1_PIN);
+	                delay_ms(100);
+	                GPIO_ResetBits(LED1_PORT, LED1_PIN);
+	            } else {
+	                GPIO_SetBits(LED2_PORT, LED2_PIN);
+	                delay_ms(100);
+	                GPIO_ResetBits(LED2_PORT, LED2_PIN);
+	            }
+	            delay_ms(100);
+	        }
+	
+	        delay_ms(2000);
+	    }
+	}
+	
+	void GPIO_Configuration(void) {
+	    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOC, ENABLE);
+	
+	    GPIO_InitTypeDef GPIO_InitStructure;
+	
+	    GPIO_InitStructure.GPIO_Pin = LED1_PIN;
+	    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
+	    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	    GPIO_Init(LED1_PORT, &GPIO_InitStructure);
+	
+	    GPIO_InitStructure.GPIO_Pin = LED2_PIN;
+	    GPIO_Init(LED2_PORT, &GPIO_InitStructure);
+	
+	    GPIO_InitStructure.GPIO_Pin = BUZZER_PIN;
+	    GPIO_Init(BUZZER_PORT, &GPIO_InitStructure);
+	
+	    GPIO_InitStructure.GPIO_Pin = BUTTON1_PIN;
+	    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IPU;
+	    GPIO_Init(BUTTON1_PORT, &GPIO_InitStructure);
+	
+	    GPIO_InitStructure.GPIO_Pin = BUTTON2_PIN;
+	    GPIO_Init(BUTTON2_PORT, &GPIO_InitStructure);
+	}
+	
+	void Timer_Init(void) {
+	    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+	
+	    TIM_TimeBaseInitTypeDef TIM_InitStructure;
+	    TIM_InitStructure.TIM_Period = 1000 - 1;
+	    TIM_InitStructure.TIM_Prescaler = (SystemCoreClock / 1000) - 1;
+	    TIM_InitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
+	    TIM_InitStructure.TIM_CounterMode = TIM_CounterMode_Up;
+	    TIM_TimeBaseInit(TIM2, &TIM_InitStructure);
+	
+	    TIM_Cmd(TIM2, ENABLE);
+	}
+	
+	uint8_t Button1_Pressed(void) {
+	    if (GPIO_ReadInputDataBit(BUTTON1_PORT, BUTTON1_PIN) == Bit_RESET) {
+	        delay_ms(50);
+	        return 1;
+	    }
+	    return 0;
+	}
+	
+	uint8_t Button2_Pressed(void) {
+	    if (GPIO_ReadInputDataBit(BUTTON2_PORT, BUTTON2_PIN) == Bit_RESET) {
+	        delay_ms(50);
+	        return 1;
+	    }
+	    return 0;
+	}
+	
+	void delay_ms(volatile uint32_t ms) {
+	    uint32_t start = Get_System_Ms();
+	    while ((Get_System_Ms() - start) < ms);
+	}
+	
+	uint32_t Get_System_Ms(void) {
+	    return TIM2->CNT;
+	}
