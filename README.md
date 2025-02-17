@@ -616,8 +616,38 @@ This is the instruction table divided with respect to registers bit columns:
 </details>  
 
 <details>
-<summary><b>Task 5:</b> Building a Reflex game on RISC-v vsdsquadron mini </summary>
+<summary><b>Task 5:</b> Building a Reflex game on RISC-V vsdsquadron mini </summary>
 <br>
 
 * So here I am building a reflex game using the vsdminisquadron board.
 * In the game the person who pushes the push button first wins the game. There will be two person who will be playing this game.
+* Below is the pinout diagram of the connection
+
+![Slide1](https://github.com/user-attachments/assets/d83fe5e1-c266-41c8-9310-a513c981bef0)
+
+**List of components required**
+
+| **Component**       | **Quantity** | **Specification/Notes**          |
+|---------------------|-------------|----------------------------------|
+| **VSDSQUADRON BOARD** | 1           | CH32V003, CH32V00x Series       |
+| **LEDs**           | 2           | Any standard 3mm or 5mm LED     |
+| **Resistors**      | 2           | 330Ω (current limiting for LEDs) |
+| **Push Buttons**   | 2           | Normally open (NO) push button  |
+| **Buzzer**         | 1           | Active Buzzer (3.3V/5V)         |
+| **Pull-up Resistors** | 2       | 10kΩ (if not using internal pull-ups) |
+| **PCB/Breadboard** | 1           | For prototyping connections     |
+| **Jumper Wires**   | As needed   | Male-to-male or female-to-male  |
+
+**Pin connections**
+| **Component**  | **MCU Pin** | **Port & Pin**  | **Direction** | **Description**                 |
+|---------------|------------|-----------------|--------------|---------------------------------|
+| **LED 1**     | PD6        | GPIOD, Pin 6    | Output       | Player 1 LED                    |
+| **LED 2**     | PC6        | GPIOC, Pin 6    | Output       | Player 2 LED                    |
+| **Button 1**  | PD0        | GPIOD, Pin 0    | Input        | Player 1 Button                 |
+| **Button 2**  | PC0        | GPIOC, Pin 0    | Input        | Player 2 Button                 |
+| **Buzzer**    | PC3        | GPIOC, Pin 3    | Output       | Buzzer for start signal         |
+| **Power**     | VCC        | 3.3V / 5V       | -            | Power Supply                     |
+| **Ground**    | GND        | GND             | -            | Common Ground                    |
+
+**Bread board Connection**
+![WhatsApp Image 2025-02-17 at 21 18 06_593e1331](https://github.com/user-attachments/assets/85d7db48-b405-4bbc-8c32-e918685b42d0)
